@@ -27,7 +27,15 @@ def register_handle(request):
         return render(request, 'register.html', {'errmsg': '邮箱格式不正确'})
 
     if allow != 'on':
-        return render(request, 'register.html', {'errmsg':'请同意协议'})
+        return render(request, 'register.html', {'errmsg': '请同意协议'})
+
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        user = None
+
+    if user:
+        return render(request, 'register.html', {'errmsg': '用户已存在'})
 
     # user = User()
     # user.username = username
@@ -37,5 +45,7 @@ def register_handle(request):
     # user.save()
 
     user = User.objects.create_user(username, email, password)
+    user.is_active = 0
+    user.save()
 
     return redirect(reverse('goods:index'))
