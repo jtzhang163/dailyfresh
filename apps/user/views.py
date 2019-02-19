@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from django.core.urlresolvers import reverse # 反向解析生成首页对应的地址
 from django.views.generic import View # 使用类视图
 from user.models import User
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from django.conf import settings
 import re
 
 # Create your views here.
@@ -91,6 +93,17 @@ class RegisterView(View):
         user = User.objects.create_user(username, email, password)
         user.is_active = 0
         user.save()
+
+        # 发送激活邮件
+
+        # 生成激活token
+        serializer = Serializer(settings.SECRET_KEY, 3600)
+        info = {'confirm': user.id}
+        token = serializer.dumps(info)
+
+        print(token)
+        # 发邮件
+
 
         return redirect(reverse('goods:index'))
 
