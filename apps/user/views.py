@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect
 from django.core.urlresolvers import reverse # 反向解析生成首页对应的地址
 from django.views.generic import View # 使用类视图
+from django.http import HttpResponse
 from user.models import User
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from itsdangerous import SignatureExpired
 from django.conf import settings
 import re
 
@@ -106,4 +108,36 @@ class RegisterView(View):
 
 
         return redirect(reverse('goods:index'))
+
+
+class ActiveView(View):
+    """用户激活"""
+    def get(self, request, token):
+
+        # 解密token
+        serializer = Serializer(settings.SECRET_KEY, 3600)
+        try:
+            info = serializer.loads(token)
+            user_id = info['confirm']
+
+            user = User.objects.get(id=user_id)
+            user.is_active = 1
+            user.save()
+
+            return redirect(reverse('user:login'))
+
+        except SignatureExpired as e:
+            return HttpResponse('激活链接已过期')
+
+
+# /user/login
+class LoginView(View):
+
+    def get(self, request):
+        return render(request, 'login.html')
+
+
+
+
+
 
