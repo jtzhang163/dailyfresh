@@ -130,9 +130,9 @@ EMAIL_PORT = 25
 # 发送邮件的邮箱
 EMAIL_HOST_USER = 'jtzhang163@163.com'
 # 在邮箱中设置的客户端授权密码
-EMAIL_HOST_PASSWORD = 'tiantianshengxian'
+EMAIL_HOST_PASSWORD = 'zjt19930826'
 # 收件人看到的发件人
-EMAIL_FROM = '天天生鲜<itcast88@163.com>'
+EMAIL_FROM = '天天生鲜<jtzhang163@163.com>'
 
 
 
