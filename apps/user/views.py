@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.core.urlresolvers import reverse # 反向解析生成首页对应的地址
+from django.core.mail import send_mail
 from django.views.generic import View # 使用类视图
 from django.http import HttpResponse
 from user.models import User
@@ -96,16 +97,19 @@ class RegisterView(View):
         user.is_active = 0
         user.save()
 
-        # 发送激活邮件
-
         # 生成激活token
         serializer = Serializer(settings.SECRET_KEY, 3600)
         info = {'confirm': user.id}
-        token = serializer.dumps(info)
+        token = serializer.dumps(info)  # bytes 字节流
+        token = token.decode()  # 相当于decode('utf8')
 
-        print(token)
-        # 发邮件
-
+        # 发送激活邮件
+        subject = '天天生鲜欢迎信息'
+        message = ''
+        sender = settings.EMAIL_FROM
+        receiver = [email]
+        html_message = '<h1>%s, 欢迎你成为天天生鲜的注册会员</h1> 请点击下面的链接激活您的账户: <br /><a href="http://127.0.0.1:8080/user/active/%s">http://127.0.0.1:8080/user/active/%s</a>' % (username, token, token)
+        send_mail(subject, message, sender, receiver, html_message=html_message)
 
         return redirect(reverse('goods:index'))
 
