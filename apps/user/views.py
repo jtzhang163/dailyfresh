@@ -9,6 +9,7 @@ from django.contrib.auth import authenticate, login
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from itsdangerous import SignatureExpired
 from django.conf import settings
+from utils.mixin import LoginRequiredMixin
 import re
 
 # Create your views here.
@@ -141,21 +142,21 @@ class LoginView(View):
 
 
 # /user
-class UserInfoView(View):
+class UserInfoView(LoginRequiredMixin, View):
     '''用户中心-信息'''
     def get(self, request):
         return render(request, 'user_center_info.html', {'page': 'user'})
 
 
 # /user/order
-class UserOrderView(View):
+class UserOrderView(LoginRequiredMixin, View):
     '''用户中心-订单'''
     def get(self, request):
         return render(request, 'user_center_order.html', {'page': 'order'})
 
 
 # /user/address
-class UserAddressView(View):
+class UserAddressView(LoginRequiredMixin, View):
     '''用户中心-地址'''
     def get(self, request):
         return render(request, 'user_center_site.html', {'page': 'address'})
