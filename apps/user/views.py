@@ -144,7 +144,14 @@ class LoginView(View):
 
     def get(self, request):
         '''显示登录页面'''
-        return render(request, 'login.html')
+        if 'username' in request.COOKIES:
+            username = request.COOKIES.get('username')
+            checked = 'checked'
+        else:
+            username = ''
+            checked = ''
+
+        return render(request, 'login.html', {'username': username, 'checked': checked})
 
     def post(self, request):
         '''进行登录处理'''
@@ -160,7 +167,14 @@ class LoginView(View):
         if user is not None:
             if user.is_active:
                 login(request, user)  # 记录用户的登录状态
-                return redirect(reverse('goods:index'))
+
+                response = redirect(reverse('goods:index'))  # HttpResponseRedirect
+                remember = request.POST.get('remember')
+                if remember == 'on':
+                    response.set_cookie('username', username, max_age=7*24*3600)
+                else:
+                    response.delete_cookie('username')
+                return response
             else:
                 return render(request, 'login.html', {'errmsg': '账户未激活! '})
         else:
