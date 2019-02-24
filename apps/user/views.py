@@ -5,7 +5,7 @@ from django.views.generic import View # 使用类视图
 from django.http import HttpResponse
 from user.models import User
 from celery_tasks.tasks import send_register_active_email
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from itsdangerous import SignatureExpired
 from django.conf import settings
@@ -139,6 +139,18 @@ class LoginView(View):
                 return render(request, 'login.html', {'errmsg': '账户未激活! '})
         else:
             return render(request, 'login.html', {'errmsg': '用户名或密码错误! '})
+
+
+# /user/logout
+class LogoutView(View):
+
+    def get(self, request):
+        '''显示登录页面'''
+
+        # 清除用户的session信息
+        logout(request)
+        return redirect(reverse('goods:index'))
+        # return render(request, 'login.html', {'username': username, 'checked': checked})
 
 
 # /user
