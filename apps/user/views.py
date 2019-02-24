@@ -124,7 +124,10 @@ class LoginView(View):
             if user.is_active:
                 login(request, user)  # 记录用户的登录状态
 
-                response = redirect(reverse('goods:index'))  # HttpResponseRedirect
+                # 获取登录后要跳转的地址
+                next_url = request.GET.get('next', reverse('goods:index'))  # 如果获取不到next, 跳转到首页
+
+                response = redirect(next_url)  # HttpResponseRedirect
                 remember = request.POST.get('remember')
                 if remember == 'on':
                     response.set_cookie('username', username, max_age=7*24*3600)
