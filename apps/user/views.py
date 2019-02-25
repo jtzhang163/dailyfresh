@@ -172,11 +172,7 @@ class UserAddressView(LoginRequiredMixin, View):
     '''用户中心-地址'''
     def get(self, request):
 
-        user = request.user
-        try:
-            address = Address.objects.get(user=user, is_default=True)
-        except Address.DoesNotExist:
-            address = None
+        address = Address.objects.get_default_address(request.user)
 
         return render(request, 'user_center_site.html', {'page': 'address', 'address': address})
 
@@ -194,12 +190,7 @@ class UserAddressView(LoginRequiredMixin, View):
             return render(request, 'user_center_site.html', {'errmsg': '手机号不合法'})
 
         # request.user django自带表示当前user
-        user = request.user
-
-        try:
-            address = Address.objects.get(user=user, is_default=True)
-        except Address.DoesNotExist:
-            address = None
+        address = Address.objects.get_default_address(request.user)
 
         if address:
             is_default = False
