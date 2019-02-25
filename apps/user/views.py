@@ -4,16 +4,18 @@ from django.core.urlresolvers import reverse # 反向解析生成首页对应的
 from django.views.generic import View # 使用类视图
 from django.http import HttpResponse
 from user.models import User, Address
+from goods.models import GoodsSKU
 from celery_tasks.tasks import send_register_active_email
 from django.contrib.auth import authenticate, login, logout
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from itsdangerous import SignatureExpired
 from django.conf import settings
 from utils.mixin import LoginRequiredMixin
+from django_redis import get_redis_connection
 import re
 
-# Create your views here.
 
+# Create your views here.
 # /user/register
 class RegisterView(View):
     """注册"""
@@ -157,8 +159,34 @@ class LogoutView(View):
 class UserInfoView(LoginRequiredMixin, View):
     '''用户中心-信息'''
     def get(self, request):
-        address = Address.objects.get_default_address(request.user)
-        return render(request, 'user_center_info.html', {'page': 'user', 'address': address})
+        user = request.user
+        address = Address.objects.get_default_address(user)
+
+        # 获取用户最近浏览商品信息
+        # from redis import StrictRedis
+        # sr = StrictRedis(host='localhost', port=6379, db=9)
+        con = get_redis_connection('default')
+        history_key = 'history_%d' % user.id
+        sku_ids = con.lrange(history_key, 0, 4)  # [2,1,3]
+
+        # # 按照sku_ids对goods_li排序
+        # goods_li = GoodsSKU.objects.filter(id__in=sku_ids)
+        # goods_res = []
+        # for sku_id in sku_ids:
+        #     for goods in goods_li:
+        #         if sku_id == goods.id:
+        #             goods_res.append(goods)
+
+        goods_li = []
+        for sku_id in sku_ids:
+            goods = GoodsSKU.objects.filter(id=sku_id)
+            goods_li.append(goods)
+
+        context = {'page': 'user',
+                   'address': address,
+                   'goods_li': goods_li}
+
+        return render(request, 'user_center_info.html', context)
 
 
 # /user/order
