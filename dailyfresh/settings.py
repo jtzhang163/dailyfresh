@@ -135,7 +135,7 @@ EMAIL_HOST_PASSWORD = 'zjt19930826'
 EMAIL_FROM = '天天生鲜<jtzhang163@163.com>'
 
 
-# Django的缓存配置
+# Django的缓存配置 Redis
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
